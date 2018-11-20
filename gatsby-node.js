@@ -11,7 +11,9 @@ exports.createPages = (({graphql, actions}) => {
         resolve(
             graphql(`
                 query {
-                    allMarkdownRemark {
+                    allMarkdownRemark (
+                        sort: {order:ASC, fields:[frontmatter___date]}
+                      ){
                         edges {
                             node {
                                 frontmatter {
@@ -70,13 +72,18 @@ exports.createPages = (({graphql, actions}) => {
                 });
 
                 // Create posts
-                posts.forEach(({node}) => {
+                posts.forEach(({node}, index) => {
                     const path = node.frontmatter.path;
+                    const prev = index === 0 ? null : posts[index - 1].node;
+                    const next = index === posts.length-1 ? null : posts[index + 1].node;
+
                     createPage({
                         path,
                         component: postTemplate,
                         context: {
                             pathSlug: path,
+                            prev,
+                            next,
                         },
                     })
                 })
